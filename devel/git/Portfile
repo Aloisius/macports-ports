@@ -42,8 +42,7 @@ depends_lib-append  port:curl \
                     port:zlib \
                     path:lib/libssl.dylib:openssl \
                     port:expat \
-                    port:libiconv \
-                    port:python38
+                    port:libiconv
 
 depends_run-append  port:p${perl5.major}-authen-sasl \
                     port:p${perl5.major}-error \
@@ -76,7 +75,6 @@ build.args          CFLAGS="${CFLAGS}" \
                     OPENSSLDIR=${prefix} \
                     ICONVDIR=${prefix} \
                     PERL_PATH="${prefix}/bin/perl${perl5.major}" \
-                    PYTHON_PATH="${prefix}/bin/python3.8" \
                     NO_FINK=1 \
                     NO_DARWIN_PORTS=1 \
                     NO_R_TO_GCC_LINKER=1 \
@@ -244,6 +242,23 @@ platform darwin 8 {
 }
 
 default_variants    +doc +pcre +credential_osxkeychain +diff_highlight
+
+variant python38 conflicts python39 description {build with python 3.8} {
+    depends_lib-append      port:python38
+    build.args-append       PYTHON_PATH="${prefix}/bin/python3.8"
+}
+
+variant python39 conflicts python38 description {build with python 3.9} {
+    depends_lib-append      port:python39
+    build.args-append       PYTHON_PATH="${prefix}/bin/python3.9"
+}
+
+if {![variant_isset python38] && \
+    ![variant_isset python39]} {
+    default_variants    +python39
+    build.args-append       NO_PYTHON=1
+}
+
 
 livecheck.type          regexm
 livecheck.regex         {<span class="version">.*?(\d+\.\d+\.\d+).*?</span>}
